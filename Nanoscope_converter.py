@@ -95,8 +95,8 @@ def nanoscope_converter(file_path):
     Rt_force = Rt_deflection*spring_constant*1000
 
     # Savitzky Golay filter to reduce noise
-    Ex_deflection_filtered = savgol_filter(Ex_deflection, 7, 3)
-    Rt_deflection_filtered = savgol_filter(Rt_deflection, 7, 3)
+    Ex_deflection_filtered = savgol_filter(Ex_deflection, 307, 3)
+    Rt_deflection_filtered = savgol_filter(Rt_deflection, 307, 3)
     # Forces filtered
     Ex_force_filtered = Ex_deflection_filtered*spring_constant*1000
     Rt_force_filtered = Rt_deflection_filtered*spring_constant*1000
