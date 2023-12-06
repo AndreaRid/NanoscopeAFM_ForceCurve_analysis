@@ -4,10 +4,11 @@ from Nanoscope_converter import nanoscope_converter
 from nanoscope_CurvesContactPoint_determination import contact_pointFinder2
 import glob
 import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy.optimize import curve_fit
 from scipy.signal import savgol_filter  # Savitzky Golay filter for smoothing data with too much noise
 from scipy.interpolate import UnivariateSpline
-
+from scipy.integrate import simps   # Calculating the area under the curve
 
 # function for linear fit
 def fit_func_linear(x, a, b):
@@ -15,14 +16,17 @@ def fit_func_linear(x, a, b):
 
 
 folder = "PS150452"
+# folder = "Chromosome_PS161143"
 # storing the directories of all the files
 all_files = [f for f in glob.glob(folder + '**/*', recursive=True) if '.000' in f]
 # image of the chromosome is the only .tif file in the folder
 img_path = [item for item in all_files if '.tif' in item]
 
-# fig, ax = plt.subplots(1, 2)
+cp_x_values = []
+ind_areas = []
+spring_vals = []
+fig, ax = plt.subplots(1, 2)
 for curve in all_files:
-    print(curve)
     curve_data = nanoscope_converter(curve)
     separation = curve_data[6]
     force = curve_data[7]
@@ -37,11 +41,12 @@ for curve in all_files:
     cp_x, cp_y, cp_index = contact[0], contact[1], contact[2]
     if cp_x <= 150:
         continue
+    cp_x_values.append(cp_x)
     force = force - cp_y
     # Fitting: data preparation
     # should be zero at the contact pt., i.e. when the fit starts) setting the contact point ascissa as zero and
     # fitting a portion of curve n times the total indentation (cp_x - n * cp_x)
-    n = .5
+    n = .6
     # index of last point of the fitted section
     end_pt = [i for i in range(len(separation)) if separation[i] < cp_x - n * cp_x]
     # portion of curve to be fitted
@@ -49,6 +54,11 @@ for curve in all_files:
     fit_force = force[cp_index: end_pt[0]]
     fit_separation = fit_separation * -1
     fit_separation = sorted(fit_separation)
+    # Calculate the area under the indenting curve
+    ind_area = simps(fit_force, dx=np.abs(fit_separation[1] - fit_separation[0]))
+    ind_areas.append(ind_area)
+    spring = (2 * ind_area) / (fit_separation[0] - fit_separation[-1])**2
+    spring_vals.append(spring)
     # Using spline interpolation to obtain a smoother trace
     spline_interp = UnivariateSpline(fit_separation, fit_force, k=1, s=55)
     # Generating finer x values for smooth plot
@@ -57,12 +67,17 @@ for curve in all_files:
     fit_force_spline = spline_interp(fit_separation_spline)
     df_dx = np.gradient(fit_force_spline, fit_separation_spline)
     df_dx = savgol_filter(df_dx, 205, 3, mode='nearest')
-    # fig, ax = plt.subplots(1, 3)
-    # ax[0].plot(fit_separation, fit_force, alpha=0.5, c='gray')
+    # fig, ax = plt.subplots(1, 2)
+    ax[0].plot(fit_separation, fit_force, alpha=0.5)
     # ax[0].scatter(fit_separation_spline, fit_force_spline, s=4)
     # ax[0].set_yscale("log")
     # ax[0].set_xscale("log")
-    # ax[1].scatter(fit_separation_spline, df_dx, s=4)
+    ax[1].scatter(fit_separation_spline, df_dx, s=4)
+plt.show()
 
-
+fig, ax = plt.subplots(1, 2)
+# ax[1].set_xscale("log")
+ax[1].set_yscale("log")
+sns.histplot(x=spring_vals, ax=ax[0])
+sns.scatterplot(x=cp_x_values, y=spring_vals, ax=ax[1])
 plt.show()

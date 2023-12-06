@@ -139,5 +139,5 @@ def nanoscope_converter(file_path):
     return curve
 
 
-nanoscope_converter("cr00028.000")
+# nanoscope_converter("cr00028.000")
 # nanoscope_converter("DPPC-DSPC_100times00154.021")
