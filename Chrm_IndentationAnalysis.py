@@ -118,6 +118,10 @@ from scipy.optimize import curve_fit
 from sklearn.decomposition import PCA
 
 
+# function for linear fit
+def fit_func_linear(x, a, b):
+    return a * x + b
+
 
 # Initialize PCA
 pca = PCA(n_components=2)
@@ -134,6 +138,26 @@ fig = plt.figure()
 ax = fig.subplots(1, 2)
 print(df["curve_id"])
 
+# Rotating the points from the PCA
+def rotate_point(x, y, angle_degrees):
+    # Convert angle from degrees to radians
+    angle_radians = np.radians(angle_degrees)
+    # Rotation matrix elements
+    cos_theta = np.cos(angle_radians)
+    sin_theta = np.sin(angle_radians)
+    # Perform rotation
+    new_x = x * cos_theta - y * sin_theta
+    new_y = x * sin_theta + y * cos_theta
+
+    return new_x, new_y
+
+
+
+angle = 0
+rotated_x, rotated_y = np.zeros(transformed_data.shape[0]), np.zeros(transformed_data.shape[0])
+for i in range(len(transformed_data[:, 0])):
+    rotated_x[i], rotated_y[i] = rotate_point(transformed_data[i, 0], transformed_data[i, 1], angle)
+
 for i, curve in enumerate(df["curve_id"]):
     curve_data = nanoscope_converter(curve)
     separation = curve_data[6]
@@ -149,7 +173,6 @@ for i, curve in enumerate(df["curve_id"]):
     cp_x, cp_y, cp_index = contact[0], contact[1], contact[2]
     if cp_x <= 150:
         continue
-    cp_x_values.append(cp_x)
     force = force - cp_y
     # Fitting: data preparation
     # should be zero at the contact pt., i.e. when the fit starts) setting the contact point ascissa as zero and
@@ -161,20 +184,17 @@ for i, curve in enumerate(df["curve_id"]):
     fit_separation = separation[cp_index: end_pt[0]] - cp_x
     fit_force = force[cp_index: end_pt[0]]
     fit_separation = fit_separation * -1
-
-    if transformed_data[i, 0] > 3000:
+    #
+    # if not((transformed_data[i, 0] > -3600) and (transformed_data[i, 0] < 2880) and (transformed_data[i, 1] > 50)) and transformed_data[i, 0] < 3000:
+    if (transformed_data[i, 0] > -3600) and (transformed_data[i, 0] < 2880) and (transformed_data[i, 1] > 50):
         c = 'blue'
     else:
         c = 'gray'
-
+    #
     ax[0].plot(fit_separation, fit_force, alpha=0.3, c=c)
-    # ax[0].scatter(fit_separation_spline, fit_force_spline, s=4)
     ax[0].set_xlabel("Indentation (nm)")
     ax[0].set_ylabel("Force (pN)")
-    # ax[0].set_yscale("log")
-    # ax[0].set_xscale("log")
-    ax[1].scatter(transformed_data[:, 0], transformed_data[:, 1], c='blue')
-    # plt.title('Transformed Data (Principal Components)')
+    ax[1].scatter(transformed_data[i, 0], transformed_data[i, 1], c=c)
     ax[1].set_xlabel('Principal Component 1')
     ax[1].set_ylabel('Principal Component 2')
 
