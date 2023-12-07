@@ -29,10 +29,10 @@ img_path = [item for item in all_files if '.tif' in item]
 
 cp_x_values = []
 ind_areas = []
-spring_vals = []
-# fig, ax = plt.subplots(1, 2)
+fig, ax = plt.subplots(1, 2)
 df = pd.DataFrame()
 all_curves = []
+curves_df = pd.DataFrame()
 for curve in all_files:
     # name of the curve
     curve_name = curve[-11:]
@@ -77,12 +77,13 @@ for curve in all_files:
     fit_force_spline = spline_interp(fit_separation_spline)
     df_dx = np.gradient(fit_force_spline)
     df_dx = savgol_filter(df_dx, 205, 3, mode='nearest')
-    df_in = pd.DataFrame({"curve_id": [curve_name],
+    df_in = pd.DataFrame({"curve_id": [curve],
                           "min_df_dx": [min(df_dx / df_dx[0])],
                           "max_df_dx": [max(df_dx / df_dx[0])],
                           "max_force": [max(fit_force)],
                           "cp_x": [cp_x],
                           "ind_energy": [ind_area / cp_x]})
+
     if min(df_dx / df_dx[0]) <= .5 and max(fit_force) > 350:
         c = 'blue'
         # df_in["color"] = ["blue"]
@@ -91,30 +92,38 @@ for curve in all_files:
         # df_in["color"] = ["gray"]
     df = pd.concat([df, df_in])
     # fig, ax = plt.subplots(1, 2)
-    # ax[0].plot(fit_separation, fit_force, alpha=0.5, c=c)
+    ax[0].plot(fit_separation, fit_force, alpha=0.3, c=c)
     # ax[0].scatter(fit_separation_spline, fit_force_spline, s=4)
+    ax[0].set_xlabel("Indentation (nm)")
+    ax[0].set_ylabel("Force (pN)")
     # ax[0].set_yscale("log")
     # ax[0].set_xscale("log")
-    # ax[1].scatter(fit_separation_spline, df_dx, s=4, alpha=0.5, c=c)
+    ax[1].scatter(fit_separation_spline, df_dx, s=4, alpha=0.3, c=c)
+    ax[1].set_xlabel("Indentation (nm)")
+    ax[1].set_ylabel("dF/dx")
     # plt.show()
-
-# plt.savefig("Fig.1.tif", dpi=600)
-# plt.show()
-
-
-# fig, ax = plt.subplots(1, 2)
-# ax[1].set_xscale("log")
-# ax[1].set_yscale("log")
-# sns.histplot(x=spring_vals, ax=ax[0])
-# sns.scatterplot(x=cp_x_values, y=spring_vals, ax=ax[1])
-# plt.show()
+df.to_csv("PCA_dataset.csv")
+plt.savefig("Fig.1.tif", dpi=600)
+plt.show()
 
 
+import pandas as pd
+import numpy as np
+from Nanoscope_converter import nanoscope_converter
+from nanoscope_CurvesContactPoint_determination import contact_pointFinder2
+import glob
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.optimize import curve_fit
+from sklearn.decomposition import PCA
 
-# Initialize PCA with desired number of components
-pca = PCA(n_components=2)  # You can set the number of components
+
+
+# Initialize PCA
+pca = PCA(n_components=2)
 
 # Fit PCA on the data
+df = pd.read_csv("PCA_dataset.csv")
 data = df.drop("curve_id", axis=1)
 pca.fit(data)
 
@@ -123,28 +132,51 @@ transformed_data = pca.transform(data)
 
 fig = plt.figure()
 ax = fig.subplots(1, 2)
+print(df["curve_id"])
 
-
-for i, curve in enumerate(all_curves[:200]):
+for i, curve in enumerate(df["curve_id"]):
     curve_data = nanoscope_converter(curve)
     separation = curve_data[6]
     force = curve_data[7]
-    if transformed_data[i, 0] > 3000:
-        c = 'red'
-    else:
-        c = 'blue'
-    ax[0].plot(separation, force, alpha=.5, c=c)
+    # Sometimes (due to instrumental errors) both approaching and
+    # retracting curves are not perfectly orizontal horizontal, correction is similar to sensitivity
+    # points to use to level the curves (first # points in the baseline part)
+    n = 1000
+    fit_param, pcov = curve_fit(fit_func_linear, separation[:n], force[:n], maxfev=100000)
+    force = force - (fit_param[0] * separation + fit_param[1])
+    # Contact point determination
+    contact = contact_pointFinder2(separation, force)
+    cp_x, cp_y, cp_index = contact[0], contact[1], contact[2]
+    if cp_x <= 150:
+        continue
+    cp_x_values.append(cp_x)
+    force = force - cp_y
+    # Fitting: data preparation
+    # should be zero at the contact pt., i.e. when the fit starts) setting the contact point ascissa as zero and
+    # fitting a portion of curve n times the total indentation (cp_x - n * cp_x)
+    n = .85
+    # index of last point of the fitted section
+    end_pt = [i for i in range(len(separation)) if separation[i] < cp_x - n * cp_x]
+    # portion of curve to be fitted
+    fit_separation = separation[cp_index: end_pt[0]] - cp_x
+    fit_force = force[cp_index: end_pt[0]]
+    fit_separation = fit_separation * -1
 
-# Plotting
-# fig = plt.figure()
-# ax = fig.subplots()
-# ax = plt.axes(projection="3d")
-# Transformed data (Principal Components)
-# ax[1].scatter(transformed_data[:, 0], transformed_data[:, 1], c='red')
-ax[1].scatter(transformed_data[:, 0], transformed_data[:, 1], c='blue')
-# plt.title('Transformed Data (Principal Components)')
-ax[1].set_xlabel('Principal Component 1')
-ax[1].set_ylabel('Principal Component 2')
+    if transformed_data[i, 0] > 3000:
+        c = 'blue'
+    else:
+        c = 'gray'
+
+    ax[0].plot(fit_separation, fit_force, alpha=0.3, c=c)
+    # ax[0].scatter(fit_separation_spline, fit_force_spline, s=4)
+    ax[0].set_xlabel("Indentation (nm)")
+    ax[0].set_ylabel("Force (pN)")
+    # ax[0].set_yscale("log")
+    # ax[0].set_xscale("log")
+    ax[1].scatter(transformed_data[:, 0], transformed_data[:, 1], c='blue')
+    # plt.title('Transformed Data (Principal Components)')
+    ax[1].set_xlabel('Principal Component 1')
+    ax[1].set_ylabel('Principal Component 2')
 
 plt.tight_layout()
 plt.show()
