@@ -103,7 +103,7 @@ for curve in all_files:
     ax[1].set_ylabel("dF/dx")
     # plt.show()
 df.to_csv("PCA_dataset.csv")
-plt.savefig("Fig.1.tif", dpi=600)
+plt.savefig("Fig.1.png", dpi=200)
 plt.show()
 
 
@@ -134,31 +134,28 @@ pca.fit(data)
 # Transform the data into principal components
 transformed_data = pca.transform(data)
 
-fig = plt.figure()
+# Number of principal components
+n_pcs = pca.components_.shape[0]
+print(pca.components_)
+# get the index of the most important feature on each component
+most_important = [np.abs(pca.components_[i]).argmax() for i in range(n_pcs)]
+print(most_important)
+
+initial_feature_names = data.columns
+# get the names
+most_important_names = [initial_feature_names[most_important[i]] for i in range(n_pcs)]
+
+# LIST COMPREHENSION HERE AGAIN
+dic = {'PC{}'.format(i): most_important_names[i] for i in range(n_pcs)}
+# build the dataframe
+df_PCA = pd.DataFrame(dic.items())
+print(df)
+
+
+fig = plt.figure(figsize=(20, 10))
 ax = fig.subplots(1, 2)
-print(df["curve_id"])
 
-# Rotating the points from the PCA
-def rotate_point(x, y, angle_degrees):
-    # Convert angle from degrees to radians
-    angle_radians = np.radians(angle_degrees)
-    # Rotation matrix elements
-    cos_theta = np.cos(angle_radians)
-    sin_theta = np.sin(angle_radians)
-    # Perform rotation
-    new_x = x * cos_theta - y * sin_theta
-    new_y = x * sin_theta + y * cos_theta
-
-    return new_x, new_y
-
-
-
-angle = 0
-rotated_x, rotated_y = np.zeros(transformed_data.shape[0]), np.zeros(transformed_data.shape[0])
-for i in range(len(transformed_data[:, 0])):
-    rotated_x[i], rotated_y[i] = rotate_point(transformed_data[i, 0], transformed_data[i, 1], angle)
-
-for i, curve in enumerate(df["curve_id"]):
+for i, curve in enumerate(df["curve_id"].values):
     curve_data = nanoscope_converter(curve)
     separation = curve_data[6]
     force = curve_data[7]
@@ -184,13 +181,15 @@ for i, curve in enumerate(df["curve_id"]):
     fit_separation = separation[cp_index: end_pt[0]] - cp_x
     fit_force = force[cp_index: end_pt[0]]
     fit_separation = fit_separation * -1
-    #
-    # if not((transformed_data[i, 0] > -3600) and (transformed_data[i, 0] < 2880) and (transformed_data[i, 1] > 50)) and transformed_data[i, 0] < 3000:
-    if (transformed_data[i, 0] > -3600) and (transformed_data[i, 0] < 2880) and (transformed_data[i, 1] > 50):
+    # selecting points in the central part of the cluster
+    if (transformed_data[i, 0] > -3820) and (transformed_data[i, 0] < 3360) and (transformed_data[i, 1] > -48):
         c = 'blue'
-    else:
+    # selecting points in the negative slope cluster
+    elif not((transformed_data[i, 0] > -3820) and (transformed_data[i, 0] < 3360) and (transformed_data[i, 1] > -48)) and transformed_data[i, 0] < 3000:
         c = 'gray'
-    #
+    # selecting points in the positive slope cluster
+    elif not((transformed_data[i, 0] > -3820) and (transformed_data[i, 0] < 3360) and (transformed_data[i, 1] > -48)) and transformed_data[i, 0] > 3000:
+        c = 'darkred'
     ax[0].plot(fit_separation, fit_force, alpha=0.3, c=c)
     ax[0].set_xlabel("Indentation (nm)")
     ax[0].set_ylabel("Force (pN)")
@@ -199,4 +198,5 @@ for i, curve in enumerate(df["curve_id"]):
     ax[1].set_ylabel('Principal Component 2')
 
 plt.tight_layout()
+plt.savefig("PCA_clusters.png", dpi=300)
 plt.show()
