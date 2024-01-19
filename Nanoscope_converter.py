@@ -10,7 +10,7 @@ import datetime
 
 def nanoscope_converter(file_path):
     '''Parser for a force curve raw file. Takes the path to the file as input and outputs all relevant information
-    about a curve'''
+    about a curve for further analysis.'''
 
     # Read the curve file as a binary
     with open(file_path, 'rb') as path:
