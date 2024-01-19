@@ -22,10 +22,8 @@ pca = PCA(n_components=2)
 df = pd.read_csv("PCA_dataset.csv")
 data = df.drop("curve_id", axis=1)
 pca.fit(data)
-
 # Transform the data into principal components
 transformed_data = pca.transform(data)
-
 # Number of principal components
 n_pcs = pca.components_.shape[0]
 print("Number of Principal Components: ", n_pcs)
@@ -37,16 +35,11 @@ initial_feature_names = data.columns
 most_important_names = [initial_feature_names[most_important[i]] for i in range(n_pcs)]
 print("Most important Principal Components: ", most_important_names)
 
-# LIST COMPREHENSION HERE AGAIN
-dic = {'PC{}'.format(i): most_important_names[i] for i in range(n_pcs)}
-# build the dataframe
-df_PCA = pd.DataFrame(dic.items())
-print(df_PCA)
 
-
+# Plotting
 fig = plt.figure(figsize=(20, 10))
 ax = fig.subplots(1, 2)
-
+# First we need to process and plot all the raw curves data
 for i, curve in enumerate(df["curve_id"].values):
     curve_data = nanoscope_converter(curve)
     separation = curve_data[6]
@@ -63,16 +56,16 @@ for i, curve in enumerate(df["curve_id"].values):
     if cp_x <= 150:
         continue
     force = force - cp_y
-    # Fitting: data preparation
-    # should be zero at the contact pt., i.e. when the fit starts) setting the contact point ascissa as zero and
-    # fitting a portion of curve n times the total indentation (cp_x - n * cp_x)
+    # Selecting only a portion of the indentation curve, n times the total indentation (cp_x - n * cp_x)
     n = .85
-    # index of last point of the fitted section
+    # index of last point of the selected portion
     end_pt = [i for i in range(len(separation)) if separation[i] < cp_x - n * cp_x]
-    # portion of curve to be fitted
+    # portion of curve to be displayed
     fit_separation = separation[cp_index: end_pt[0]] - cp_x
     fit_force = force[cp_index: end_pt[0]]
     fit_separation = fit_separation * -1
+
+    # After checking PCA results, manually group the points in the 2 PC plot into 3 distinct clusters
     # selecting points in the central part of the cluster
     if (transformed_data[i, 0] > -3820) and (transformed_data[i, 0] < 3360) and (transformed_data[i, 1] > -48):
         c = 'blue'
@@ -90,5 +83,6 @@ for i, curve in enumerate(df["curve_id"].values):
     ax[1].set_ylabel('Principal Component 2')
 
 plt.tight_layout()
+# saving the plot
 plt.savefig("PCA_clusters.png", dpi=300)
 plt.show()
