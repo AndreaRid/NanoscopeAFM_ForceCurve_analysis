@@ -1,15 +1,17 @@
 # import matplotlib.pyplot as plt
-import numpy as np
 # from Nanoscope_converter import nanoscope_converter
 # import glob
 # import os
+import numpy as np
 #
-# COMMENTED LINES ARE JUST FOR RUNNING THE FUNCTION INDEPENDENTLY AND CHECKING IT
-# # folder_path = input('inserire directory della cartella contenente le curve da analizzare: ')
-# folder_path = r"C:\Users\Andrea\Desktop\VU_postdoc\Lab\20220224_Chromosomes_IndentationTests_PABuffer\PS241224\curves"
-# # create a list named files that contains all the path of all the files
-# files = [f for f in glob.glob(folder_path + '**/*', recursive=True)]
-#
+# Lines before function definition are just for local diagnostic tests
+# folders = [f for f in glob.glob("Chromosomes" + '**/*', recursive=True)]
+# folder = "Chromosome_PS161143"
+# storing the directories of all the files
+# files = []
+# for folder in folders:
+#     file = [f for f in glob.glob(folder + '**/*', recursive=True) if '.000' in f]
+#     files.extend(file)
 # title = False   # control variable used for writing the header in the text file only once
 # # HOW MANY POINTS TO USE FOR CORRECTING THE SENSITIVITY?
 # # points = input('How many points to use for correcting the sensitivity? Type "no" for avoid sensitivity correction ')
@@ -34,6 +36,9 @@ import numpy as np
 #         correction = (force - fit_param[0][1])/fit_param[0][0]
 #         separation = raw_separation - correction
 def contact_pointFinder1(separation, force):
+        '''Identify the contact point as the point at which the force > 2*baseline_noise. The function calculates the
+        average value of the baseline noise (as its st. dev) and find the first point where the force becomes greater
+        than this value, this point will be the contact point.'''
         # percentage of the curve that should be regarded as baseline
         pc = 25
         bs_points = int(len(separation)*pc/100)
@@ -59,6 +64,10 @@ def contact_pointFinder1(separation, force):
 
 
 def contact_pointFinder2(separation, force):
+        '''This function estimates the contact point as the first point where the force becomes > 50 pN, which is a
+        reasonable estimation for the noise of the baseline. In the case of snap-in events where the force decreases
+        towards zero but then increases again, this function might generate wrong results. The threshold for the
+        noise value has to be adjusted depending on the instrumentation and type of measurement.'''
         i = 0
         while force[i] <= 550:
                 i += 1
