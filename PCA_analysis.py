@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.optimize import curve_fit
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler, Normalizer
+
 
 '''This script imports the results from the Chrm_IndentationAnalysis.py and runs a Principal Component Analysis (PCA) 
 to understand which are the main properties that can be used to cluster different types of curves.'''
