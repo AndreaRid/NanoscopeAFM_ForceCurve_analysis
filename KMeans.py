@@ -19,7 +19,7 @@ def fit_func_linear(x, a, b):
 
 
 # Initialize PCA
-model = KMeans(n_clusters=3, max_iter=1000)
+model = KMeans(n_clusters=3)
 # Fit KMeans on the data
 df = pd.read_csv("PCA_dataset.csv")
 data = df.drop("curve_id", axis=1)
@@ -27,7 +27,7 @@ model.fit(data)
 # Get cluster assignments for each data point
 labels = model.labels_
 # Get cluster centers
-centers = model.cluster_centers_
+# centers = model.cluster_centers_
 
 # print("labels", labels)
 # print("centers", centers)
