@@ -138,11 +138,13 @@ def indentation_fit(path):
     else:
         fig, ax = plt.subplots()
         ax.grid()
-        ax.scatter(separation, force, s=1, c='gray', alpha=0.5, zorder=1)
-        ax.plot(fit_separation + cp_x, fit, c='r', linestyle='--', zorder=2)
-        ax.scatter(cp_x, cp_y - cp_y, s=25, c='k', marker='X', zorder=3)
+        ax.scatter(separation, force, s=5, c='gray', alpha=0.5, zorder=1, label='Force curve')
+        ax.plot(fit_separation + cp_x, fit, c='r', linestyle='--', zorder=2, label='Fit')
+        ax.scatter(cp_x, cp_y - cp_y, s=25, c='k', marker='X', zorder=3, label='Contact point')
         ax.set_xlabel('Separation (nm)')
         ax.set_ylabel('Force (pN)')
+        plt.legend()
+        plt.savefig("FC_Chromosome_Modified_Hertz_Fit_example.png", dpi=300)
         plt.show()
 
     return x_pos, y_pos, young_modulus, error, cp_x, area_simps, E_bis
@@ -205,18 +207,21 @@ def area_viscoelasticity(path):
     # Plotting
     fig, ax = plt.subplots()
     ax.grid()
-    ax.scatter(separation, force, s=1, c='b', alpha=0.5, zorder=2)
-    ax.scatter(rt_separation, rt_force, s=1, c='r', alpha=0.5, zorder=2)
-    ax.scatter(cp_x, cp_y, s=25, c='green', marker='X', zorder=3)
-    ax.scatter(rt_cp_x, rt_cp_y, s=25, c='green', marker='X', zorder=3)
+    ax.scatter(separation, force, s=1, c='b', alpha=0.5, zorder=2, label='Indenting Force Curve')
+    ax.scatter(rt_separation, rt_force, s=1, c='r', alpha=0.5, zorder=2, label='Retracting Force Curve')
+    ax.scatter(cp_x, cp_y, s=25, c='green', marker='X', zorder=3, label='Contact point')
+    ax.scatter(rt_cp_x, rt_cp_y, s=25, c='k', marker='X', zorder=3, label='Starting of pulling regime')
     # Coloring area under the curves
     ax.fill_between(separation[cp_index:], force[cp_index:], 0,
-                         color='dodgerblue', alpha=0.3, hatch='\\', zorder=1)
+                         color='dodgerblue', alpha=0.3, hatch='\\', zorder=1, label='Loading energy')
     ax.fill_between(rt_separation[rt_cp_index:], rt_force[rt_cp_index:], 0,
-                    color='salmon', alpha=0.3, hatch='//', zorder=1)
+                    color='salmon', alpha=0.3, hatch='//', zorder=1, label='Unloading energy')
     ax.set_xlabel('Separation (nm)')
     ax.set_ylabel('Force (pN)')
+    plt.legend()
+    plt.savefig("FC_Chromosome_ViscIndex_example.png", dpi=300)
     plt.show()
+
     return x_pos, y_pos, eta, cp_x
 
 
