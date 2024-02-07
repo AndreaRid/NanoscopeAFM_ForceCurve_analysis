@@ -1,16 +1,11 @@
 import re
-
 import matplotlib.pyplot as plt
 import numpy as np
-import csv
-import itertools
-#import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter # Savitzky Golay filter for smoothing data with too much noise
-import datetime
 
 def nanoscope_converter(file_path):
-    '''Parser for a force curve raw file. Takes the path to the file as input and outputs all relevant information
-    about a curve for further analysis.'''
+    '''Parser for a force curve raw file. Takes the path to the file as input and outputs a list containing all
+    relevant information about a curve for further analysis.'''
 
     # Read the curve file as a binary
     with open(file_path, 'rb') as path:
@@ -113,7 +108,6 @@ def nanoscope_converter(file_path):
     Ex_separation_filtered = np.array(Ex_ramp-Ex_deflection_filtered)
     Rt_separation_filtered = np.array(Rt_ramp+Rt_deflection_filtered)
 
-
     # Setting the "surface" as zero of the curve
     Ex_max = np.max(Ex_separation)
     aligned_Ex_sep = np.array((Ex_separation - Ex_max)*-1)
@@ -130,14 +124,14 @@ def nanoscope_converter(file_path):
              aligned_Ex_sep_filtered, Ex_force_filtered, aligned_Rt_sep_filtered, Rt_force_filtered,
              forw_vel, ind_rate, scan_size, x_pos, y_pos]
 
+    # Plotting the curve
     # plt.plot(aligned_Ex_sep, Ex_force_shifted, 'b', zorder=1)
     # plt.plot(aligned_Rt_sep, Rt_force_shifted, 'r', zorder=2)
     # plt.grid()
     # plt.show()
 
-
     return curve
 
-
+# Testing the two functions with two random force curves
 # nanoscope_converter("cr00028.000")
 # nanoscope_converter("DPPC-DSPC_100times00154.021")

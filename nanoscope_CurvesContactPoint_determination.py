@@ -4,7 +4,11 @@
 # import os
 import numpy as np
 #
-# Lines before function definition are just for local diagnostic tests
+'''Lines before function definition are just for local diagnostic tests. The script contains 2 functions for 
+identification of the contact point in the force curves (more precisely in the indenting force curve), the use of one 
+function over the other depends on the shape of the curve, in the case of roughly a monotonic indenting curve, 
+the second function works better (for each of them the values related to the signal noise have to be adjusted 
+according to specific cases).'''
 # folders = [f for f in glob.glob("Chromosomes" + '**/*', recursive=True)]
 # folder = "Chromosome_PS161143"
 # storing the directories of all the files
