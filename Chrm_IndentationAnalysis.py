@@ -4,11 +4,15 @@ from Nanoscope_converter import nanoscope_converter
 from nanoscope_CurvesContactPoint_determination import contact_pointFinder2
 import glob
 import matplotlib.pyplot as plt
-import seaborn as sns
 from scipy.optimize import curve_fit
 from scipy.signal import savgol_filter  # Savitzky Golay filter for smoothing data with too much noise
 from scipy.interpolate import UnivariateSpline
 from scipy.integrate import simps   # Calculating the area under the curve
+
+
+'''This script processes all the indentation curves within the "Chromosome" folder and calculates useful descriptors 
+such as the min and max values for the first derivative, the max indenting force, the contct point and the 
+indentation energy in order to develop clustering analyses in later steps.'''
 
 
 # function for linear fit
@@ -17,7 +21,6 @@ def fit_func_linear(x, a, b):
 
 
 
-# folders = ["Chromosomes/PS150452", "Chromosomes/Chromosome_PS161143"]
 folders = [f for f in glob.glob("Chromosomes" + '**/*', recursive=True)]
 # folder = "Chromosome_PS161143"
 # storing the directories of all the files
@@ -34,10 +37,12 @@ df = pd.DataFrame()
 all_curves = []
 curves_df = pd.DataFrame()
 
+# For plotting all the curves together, activate the first plt.subplots()
 # fig, ax = plt.subplots(1, 2)
 for curve in all_files:
     # name of the curve
     curve_name = curve[-11:]
+    # Plotting each single curve independently
     # fig, ax = plt.subplots(1, 2)
     # plt.ion()
     # Processing and extracting curve data
@@ -59,56 +64,60 @@ for curve in all_files:
     force = force - cp_y
     all_curves.append(curve)
 
-    # Fitting: data preparation setting the contact point  (i.e. where the fit starts) abscissa as zero and fitting a
-    # portion of curve n times the total indentation (cp_x - n * cp_x)
+    # Data preparation: setting the contact point  (i.e. where the fit starts) abscissa as zero and selecting
+    # only a portion of curve of size n-times the total indentation (cp_x - n * cp_x)
     n = .85
     # index of last point of the fitted portion
     end_pt = [i for i in range(len(separation)) if separation[i] < cp_x - n * cp_x]
-    # portion of curve to be fitted
-    fit_separation = separation[cp_index: end_pt[0]] - cp_x
-    fit_force = force[cp_index: end_pt[0]]
-    fit_separation = fit_separation * -1
-    fit_separation = sorted(fit_separation)
+    # portion of curve to be analyzed
+    roi_separation = separation[cp_index: end_pt[0]] - cp_x
+    roi_force = force[cp_index: end_pt[0]]
+    roi_separation = roi_separation * -1
+    roi_separation = sorted(roi_separation)
 
     # Calculate the area under the indenting curve (i.e., energy of indentation)
-    ind_area = simps(fit_force, dx=np.abs(fit_separation[1] - fit_separation[0]))
+    ind_area = simps(roi_force, dx=np.abs(roi_separation[1] - roi_separation[0]))
     ind_areas.append(ind_area)
     # Using spline interpolation to obtain a smoother trace
-    spline_interp = UnivariateSpline(fit_separation, fit_force, k=1, s=55)
+    spline_interp = UnivariateSpline(roi_separation, roi_force, k=1, s=55)
     # Generating finer x values for smooth plot
-    fit_separation_spline = np.linspace(min(fit_separation), max(fit_separation), 500)
+    roi_separation_spline = np.linspace(min(roi_separation), max(roi_separation), 500)
     # Interpolating y values using the spline interpolation function
-    fit_force_spline = spline_interp(fit_separation_spline)
+    roi_force_spline = spline_interp(roi_separation_spline)
     # calculating the derivative of the indentation force
-    df_dx = np.gradient(fit_force_spline)
+    df_dx = np.gradient(roi_force_spline)
     # denoinsing with Savitsky-Golay filter
     df_dx = savgol_filter(df_dx, 205, 3, mode='nearest')
-    # storing useful descriptors for clustering analysis
+    # storing useful descriptors for future clustering analysis
     df_in = pd.DataFrame({"curve_id": [curve],
                           "min_df_dx": [min(df_dx / df_dx[0])],
                           "max_df_dx": [max(df_dx / df_dx[0])],
-                          "max_force": [max(fit_force)],
+                          "max_force": [max(roi_force)],
                           "cp_x": [cp_x],
                           "ind_energy": [ind_area / cp_x]})
     df = pd.concat([df, df_in])
-    # Plotting the results
-    # if min(df_dx / df_dx[0]) <= .5 and max(fit_force) > 350:
+
+    # Plotting the curve and its first derivative
+
+    # color code for identification of curves with different features
+    # if min(df_dx / df_dx[0]) <= .5 and max(roi_force) > 350:
     #     c = 'blue'
         # df_in["color"] = ["blue"]
     # else:
     #     c = 'gray'
         # df_in["color"] = ["gray"]
     # fig, ax = plt.subplots(1, 2)
-    # ax[0].plot(fit_separation, fit_force, alpha=0.3, c=c)
-    # ax[0].scatter(fit_separation_spline, fit_force_spline, s=4)
+    # ax[0].plot(roi_separation, roi_force, alpha=0.3, c=c)
+    # ax[0].scatter(roi_separation_spline, roi_force_spline, s=4)
     # ax[0].set_xlabel("Indentation (nm)")
     # ax[0].set_ylabel("Force (pN)")
     # ax[0].set_yscale("log")
     # ax[0].set_xscale("log")
-    # ax[1].scatter(fit_separation_spline, df_dx, s=4, alpha=0.3, c=c)
+    # ax[1].scatter(roi_separation_spline, df_dx, s=4, alpha=0.3, c=c)
     # ax[1].set_xlabel("Indentation (nm)")
     # ax[1].set_ylabel("dF/dx")
     # plt.show()
-df.to_csv("PCA_dataset.csv")
+
+# De-comment the next line to save the features of all the processed curves into a .csv file for further analyses
+# df.to_csv("PCA_dataset.csv")
 # plt.savefig("Fig.1.png", dpi=200)
-# plt.show()
