@@ -148,7 +148,7 @@ def indentation_fit(path):
         ax.set_xlabel('Separation (nm)')
         ax.set_ylabel('Force (pN)')
         plt.legend()
-        plt.savefig("FC_Chromosome_Modified_Hertz_Fit_example.png", dpi=300)
+        plt.savefig("nanoscope_CurveFit_FC_Chromosome_Modified_Hertz_Fit_example.png", dpi=300)
         plt.show()
 
     return x_pos, y_pos, young_modulus, error, cp_x, area_simps, E_bis
@@ -223,12 +223,12 @@ def area_viscoelasticity(path):
     ax.set_xlabel('Separation (nm)')
     ax.set_ylabel('Force (pN)')
     plt.legend()
-    plt.savefig("FC_Chromosome_ViscIndex_example.png", dpi=300)
+    plt.savefig("nanoscope_CurveFit_FC_Chromosome_ViscIndex_example.png", dpi=300)
     plt.show()
 
     return x_pos, y_pos, eta, cp_x
 
 
 # Testing the two functions with a random force curve
-area_viscoelasticity("cr00037.000")
-indentation_fit("cr00037.000")
+area_viscoelasticity("Example_RawData/cr00037.000")
+indentation_fit("Example_RawData/cr00037.000")

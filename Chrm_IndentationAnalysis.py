@@ -21,7 +21,7 @@ def fit_func_linear(x, a, b):
 
 
 
-folders = [f for f in glob.glob("Chromosomes" + '**/*', recursive=True)]
+folders = [f for f in glob.glob("Example_RawData/Chromosomes" + '**/*', recursive=True)]
 # folder = "Chromosome_PS161143"
 # storing the directories of all the files
 all_files = []
@@ -42,6 +42,7 @@ curves_df = pd.DataFrame()
 for curve in all_files:
     # name of the curve
     curve_name = curve[-11:]
+    print("processing curve: ", curve_name)
     # Plotting each single curve independently
     # fig, ax = plt.subplots(1, 2)
     # plt.ion()

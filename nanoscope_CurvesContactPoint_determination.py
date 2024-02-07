@@ -9,8 +9,8 @@ identification of the contact point in the force curves (more precisely in the i
 function over the other depends on the shape of the curve, in the case of roughly a monotonic indenting curve, 
 the second function works better (for each of them the values related to the signal noise have to be adjusted 
 according to specific cases).'''
-# folders = [f for f in glob.glob("Chromosomes" + '**/*', recursive=True)]
-# folder = "Chromosome_PS161143"
+# folders = [f for f in glob.glob("Example_RawData/Chromosomes" + '**/*', recursive=True)]
+# folder = "Example_RawData/Chromosome_PS161143"
 # storing the directories of all the files
 # files = []
 # for folder in folders:
