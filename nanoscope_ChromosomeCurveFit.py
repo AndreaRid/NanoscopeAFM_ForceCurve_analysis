@@ -8,6 +8,10 @@ from nanoscope_CurvesContactPoint_determination import contact_pointFinder2
 from scipy.integrate import simps
 
 
+'''This script contains two main custom functions for different analyses of the AFM force curves:
+    1) indentation_fit for fitting the indenting curve
+    2) area_viscoelasticity for the analysis of the area under the indenting and retracting curve.'''
+
 
 # function for linear fit
 def fit_func_linear(x, a, b):
@@ -225,6 +229,6 @@ def area_viscoelasticity(path):
     return x_pos, y_pos, eta, cp_x
 
 
-
+# Testing the two functions with a random force curve
 area_viscoelasticity("cr00037.000")
 indentation_fit("cr00037.000")
