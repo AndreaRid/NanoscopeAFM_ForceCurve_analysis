@@ -110,7 +110,7 @@ def plot_basic_cluster(X):
 
 
 df = pd.read_csv("ROI_ForceCurvesSpline.csv", sep=',')
-df = df.drop('Unnamed: 0', axis=1).T
+df = df.drop('Unnamed: 0', axis=1)
 df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
 df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1).T
 print("DF", df.columns)
@@ -123,11 +123,25 @@ print("X_axis", df_xaxis.columns)
 '''Using Euclidean Distance as metrics'''
 #--- run the clustering
 #D = hac.linkage(timeSeries, method='single', metric='correlation')
-D = hac.linkage(df, method='ward', metric='euclidean')
+# D = hac.linkage(df, method='ward', metric='euclidean')
 # print("Linkage matrix: ", D)
-plot_dendogram(D)
+# plot_dendogram(D)
 
 #---- evaluate the dendogram
-cut_off_level = .5e6# level where to cut off the dendogram
-plot_results(df.T, df_xaxis.T, D, cut_off_level)
+# cut_off_level = .5e6# level where to cut off the dendogram
+# plot_results(df.T, df_xaxis.T, D, cut_off_level)
 
+from tslearn.metrics import dtw
+from scipy.cluster.hierarchy import dendrogram, linkage
+
+# alignment = dtw(df.iloc[:, 0], df.iloc[:, 506], keep_internals=True)
+# print(alignment)
+num_time_series = df.shape[1]
+dtw_distances = np.zeros((num_time_series, num_time_series))
+for i in range(num_time_series):
+    for j in range(i + 1, num_time_series):
+        dtw_distances[i, j] = dtw(df.iloc[:, i], df.iloc[:, j])
+        dtw_distances[j, i] = dtw_distances[i, j]  # Distance matrix is symmetric
+
+# Perform hierarchical clustering
+Z = linkage(dtw_distances, method='average')
