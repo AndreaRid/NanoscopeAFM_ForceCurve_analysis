@@ -103,10 +103,10 @@ for curve in all_files:
     # color code for identification of curves with different features
     # if min(df_dx / df_dx[0]) <= .5 and max(roi_force) > 350:
     #     c = 'blue'
-        # df_in["color"] = ["blue"]
+    #     df_in["color"] = ["blue"]
     # else:
     #     c = 'gray'
-        # df_in["color"] = ["gray"]
+    #     df_in["color"] = ["gray"]
     # fig, ax = plt.subplots(1, 2)
     # ax[0].plot(roi_separation, roi_force, alpha=0.3, c=c)
     # ax[0].scatter(roi_separation_spline, roi_force_spline, s=4)

@@ -125,15 +125,15 @@ def nanoscope_converter(file_path):
              forw_vel, ind_rate, scan_size, x_pos, y_pos]
 
     # Plotting the curve
-    fig, ax = plt.subplots()
-    ax.plot(aligned_Ex_sep, Ex_force_shifted, 'b', zorder=1)
-    ax.plot(aligned_Rt_sep, Rt_force_shifted, 'r', zorder=2)
-    ax.grid()
-    ax.set_xlabel("Separation (nm)")
-    ax.set_ylabel("Force (pN)")
-    curve_name = str(file_path).split("/")[-1]
-    plt.savefig(r"Example_figures/" + "Nanoscope_converter_" + curve_name + ".png", dpi=300)
-    plt.show()
+    # fig, ax = plt.subplots()
+    # ax.plot(aligned_Ex_sep, Ex_force_shifted, 'b', zorder=1)
+    # ax.plot(aligned_Rt_sep, Rt_force_shifted, 'r', zorder=2)
+    # ax.grid()
+    # ax.set_xlabel("Separation (nm)")
+    # ax.set_ylabel("Force (pN)")
+    # curve_name = str(file_path).split("/")[-1]
+    # plt.savefig(r"Example_figures/" + "Nanoscope_converter_" + curve_name + ".png", dpi=300)
+    # plt.show()
 
     return curve
 
