@@ -90,11 +90,12 @@ for i, curve in enumerate(all_files):
     curves_array[i] = roi_force_spline
     curves_array_xaxis[i] = np.linspace(min(roi_separation), max(roi_separation), 505)
 
+# Storing the dataframes containing x and y axes of the force curves, for DTW comment the dropna() steps
 df = pd.DataFrame(curves_array).T
-df.dropna(axis=1, inplace=True)
-df.to_csv("ROI_ForceCurvesSpline.csv", sep=',')
 df_xaxis = pd.DataFrame(curves_array_xaxis).T
+df.dropna(axis=1, inplace=True)
 df_xaxis.dropna(axis=1, inplace=True)
+df.to_csv("ROI_ForceCurvesSpline.csv", sep=',')
 df_xaxis.to_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
 print(df)
 

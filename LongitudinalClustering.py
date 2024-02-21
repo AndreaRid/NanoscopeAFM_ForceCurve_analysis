@@ -5,52 +5,24 @@ import scipy.cluster.hierarchy as hac
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram, linkage
+import fastdtw
+from scipy.spatial.distance import squareform
+import time
+from joblib import Parallel, delayed
+import multiprocessing
 
-def generate_data(nT,nC,mG,A,sg,eg):
-    timeSeries = pd.DataFrame()
-    basicSeries = pd.DataFrame()
-    β = 0.5*np.pi
-    ω = 2*np.pi/nT
-    t = np.linspace(0,nT,nT)
-    for ic,c in enumerate(np.arange(nC)):
-        slope = sg*(-(nC-1)/2 + c)
-        s = A * (-1**c -np.exp(t*eg))*np.sin(t*ω*(c+1) + c*β) + t*ω*slope
-        basicSeries[ic] = s
-        sr = np.outer(np.ones_like(mG),s)
-        sr = sr + 1*np.random.rand(mG,nT) + 1.0*np.random.randn(mG,1)
-        timeSeries = timeSeries.append(pd.DataFrame(sr))
-    return basicSeries, timeSeries
-
-def plot_basicSeries(basicSeries):
-    with plt.style.context('seaborn'):      # 'fivethirtyeight'
-         fig = plt.figure(figsize=(20,8)) ;
-         ax1 = fig.add_subplot(111);
-         plt.title('Basice patterns to generate Longitudinal data',fontsize=25, fontweight='bold')
-         plt.xlabel('Time', fontsize=15, fontweight='bold')
-         plt.ylabel('Signal of the observed feature', fontsize=15, fontweight='bold')
-         plt.plot(basicSeries, lw=10, alpha=.8)
-
-def plot_timeSeries(timeSeries):
-    with plt.style.context('seaborn'):      # 'fivethirtyeight'
-         fig = plt.figure(figsize=(20,8)) ;
-         ax1 = fig.add_subplot(111);
-         plt.title('Longitudinal data',fontsize=25, fontweight='bold')
-         plt.xlabel('Time', fontsize=15, fontweight='bold')
-         plt.ylabel('Signal of the observed feature', fontsize=15, fontweight='bold')
-         plt.plot(timeSeries.T)
-         #ax1 = sns.tsplot(ax=ax1, data=timeSeries.values, ci=[68, 95])
 
 def plot_dendogram(Z):
     with plt.style.context('fivethirtyeight' ):
          plt.figure(figsize=(15, 5))
-         plt.title('Dendrogram of time series clustering',fontsize=25, fontweight='bold')
+         plt.title('Dendrogram for curve clustering', fontsize=25, fontweight='bold')
          plt.xlabel('sample index', fontsize=25, fontweight='bold')
          plt.ylabel('distance', fontsize=25, fontweight='bold')
          hac.dendrogram(Z, leaf_rotation=90.,  # rotates the x axis labels
                         leaf_font_size=15) # and font size for the x axis labels
          plt.show()
 
-def plot_results(timeSeries, xaxis, D, cut_off_level):
+def plot_results(yaxis, xaxis, D, cut_off_level):
     result = pd.Series(hac.fcluster(D, cut_off_level, criterion='distance'))
     clusters = result.unique()
     print(result.value_counts())
@@ -66,96 +38,75 @@ def plot_results(timeSeries, xaxis, D, cut_off_level):
         # print(type(cluster_index))
         # print(xaxis.iloc[:, cluster_index].columns)
         # print(timeSeries.iloc[:, cluster_index].columns)
-        ax1[i].plot(xaxis.iloc[:, cluster_index], timeSeries.iloc[:, cluster_index], alpha=0.5)
+        ax1[i].plot(xaxis.iloc[:, cluster_index].dropna(axis=1),
+                    yaxis.iloc[:, cluster_index].dropna(axis=1), alpha=0.5)
         ax1[i].set_title(('Cluster number '+str(c)), fontsize=15, fontweight='bold')
         ax1[i].set_ylim(-200, 12100)
         ax1[i].set_xlim(0, 550)
-        ax2.plot(xaxis.iloc[:, cluster_index], timeSeries.iloc[:, cluster_index],
+        ax2.plot(xaxis.iloc[:, cluster_index].dropna(axis=1), yaxis.iloc[:, cluster_index].dropna(axis=1),
                  c=palette[i], alpha=0.5, zorder=l)
         ax2.set_ylim(-200, 12100)
         ax2.set_xlim(0, 550)
         l -= 1
     plt.show()
 
-def plot_basic_cluster(X):
-    with plt.style.context('fivethirtyeight' ):
-         plt.figure(figsize=(17,3))
-         D1 = hac.linkage(X, method='ward', metric='euclidean')
-         dn1= hac.dendrogram(D1)
-         plt.title("Clustering: method='ward', metric='euclidean'")
-
-         plt.figure(figsize=(17, 3))
-         D2 = hac.linkage(X, method='single', metric='euclidean')
-         dn2= hac.dendrogram(D2)
-         plt.title("Clustering: method='single', metric='euclidean'")
-         plt.show()
 
 
-
-'''Generating Data'''
-#---- number of time series
-# nT = 101  # number of observational point in a time series
-# nC = 6    # number of charakteristic  signal groups
-# mG = 10   # number of time series in a charakteristic signal group
-
-#---- control parameters for data generation
-# Am = 0.3; # amplitude of the signal
-# sg = 0.3  # rel. weight of the slope
-# eg = 0.02 # rel. weight of the damping
-
-#---- generate the data
-# basicSeries,timeSeries = generate_data(nT,nC,mG,Am,sg,eg)
-# plot_basicSeries(basicSeries)
-# plot_timeSeries(timeSeries)
-
-
+'''Using Euclidean Distance as metrics'''
 df = pd.read_csv("ROI_ForceCurvesSpline.csv", sep=',')
-df = df.drop('Unnamed: 0', axis=1).T
+df = df.drop('Unnamed: 0', axis=1)
 df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
-df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1).T
-print("DF", df.columns)
-print("X_axis", df_xaxis.columns)
+df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1)
+# print("DF", df.columns)
+# print("X_axis", df_xaxis.columns)
 # fig, ax = plt.subplots()
 # for i in range(df.shape[1]):
 #     ax.plot(df.index, df.iloc[:, i])
 # plt.show()
 
-'''Using Euclidean Distance as metrics'''
-#--- run the clustering
+# run the clustering
 #D = hac.linkage(timeSeries, method='single', metric='correlation')
-D = hac.linkage(df, method='ward', metric='euclidean')
+# D = hac.linkage(df, method='ward', metric='euclidean')
 # print("Linkage matrix: ", D)
-plot_dendogram(D)
+# plot_dendogram(D)
 
 #---- evaluate the dendogram
-cut_off_level = .5e6# level where to cut off the dendogram
-plot_results(df.T, df_xaxis.T, D, cut_off_level)
+# cut_off_level = .5e6# level where to cut off the dendogram
+# plot_results(df.T, df_xaxis.T, D, cut_off_level)
 
 
-'''Working on Dynamic Time Warping...'''
-# from scipy.spatial.distance import euclidean
+'''Dynamic Time Warping'''
 
-# from fastdtw import fastdtw
-
-# x = np.array([[1,1], [2,2], [3,3], [4,4], [5,5]])
-# y = np.array([[2,2], [3,3], [4,4]])
-# x = list(zip(df_xaxis.iloc[:, 0], df.iloc[:, 0]))
-# y = list(zip(df_xaxis.iloc[:, 1], df.iloc[:, 1]))
-# distance, path = fastdtw(x, y, dist=euclidean)
-
-
+df = pd.read_csv("ROI_ForceCurvesSpline_DTW.csv", sep=',')
+df = df.drop('Unnamed: 0', axis=1)
+df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis_DTW.csv", sep=',')
+df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1)
 # Compute pairwise DTW distances
-# num_time_series = df.shape[1]
-# dtw_distances = np.zeros((num_time_series, num_time_series))
-# for i in range(num_time_series):
-#     x = list(zip(df_xaxis.iloc[:, i], df.iloc[:, i]))
-#     for j in range(i + 1, num_time_series):
-#         y = list(zip(df_xaxis.iloc[:, j], df.iloc[:, j]))
-#         # dtw_distances[i, j] = dtw(time_series_data[i], time_series_data[j])
-#         dtw_distances[i, j], path = fastdtw(x, y, dist=euclidean)
-#         dtw_distances[j, i] = dtw_distances[i, j]  # Distance matrix is symmetric
-#
+num_curves = df.shape[1]
+dtw_distances = np.zeros((num_curves, num_curves))
+
+
+print(dtw_distances)
+start_time = time.time()
+for i in range(num_curves):
+    x = df.iloc[:, i].dropna().values
+    for j in range(i + 1, num_curves):
+        y = df.iloc[:, j].dropna().values
+        dtw_distances[i, j] = fastdtw.fastdtw(x, y)[0]
+        dtw_distances[j, i] = dtw_distances[i, j]  # Distance matrix is symmetric
+end_time = time.time()
+print('Processing time: ', end_time - start_time, " sec")
+condensed_distances = squareform(dtw_distances)
+np.savetxt('condensed_distances.csv', condensed_distances, delimiter=',')
+
+
+
 # # Perform hierarchical clustering
-# Z = linkage(dtw_distances, method='average')  # You can choose different linkage methods
-#
-# print(distance)
+condensed_distances = np.loadtxt('condensed_distances.csv', delimiter=',')
+Z = linkage(condensed_distances, method='ward', metric='euclidean')  # You can choose different linkage methods
+plot_dendogram(Z)
+
+#---- evaluate the dendogram
+# cut_off_level = .5e6# level where to cut off the dendogram
+cut_off_level = input("insert cut off level: ")
+plot_results(df, df_xaxis, Z, cut_off_level)
