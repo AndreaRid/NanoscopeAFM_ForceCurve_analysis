@@ -3,35 +3,37 @@ from multiprocessing import Pool
 from scipy.spatial.distance import squareform
 import numpy as np
 import fastdtw
-import time
+from time import time, sleep
+from tqdm import tqdm
+from tqdm.contrib.concurrent import process_map
 
 def calculate_dtw_distance(indexes):
-    i, j = indexes[0], indexes[1]
-    df = indexes[2]
+    '''Calculate the distance between the i-th and j-th columns (curves) of the dataframe by using Dynamic Time
+    Warping. Returns the distance and the indexes of the respective columns.'''
+    i, j, df = indexes[0], indexes[1], indexes[2]
     x = df.iloc[:, i].dropna().values
     y = df.iloc[:, j].dropna().values
     return fastdtw.fastdtw(x, y)[0], i, j
 
 
 
-'''Dynamic Time Warping'''
-
-# print("Starting")
-# Create a pool of worker processes
+# Performing DTW analysis exploiting parallelization
 if __name__ == '__main__':
-    start = time.time()
+    start = time()
     df = pd.read_csv("ROI_ForceCurvesSpline_DTW.csv", sep=',')
     df = df.drop('Unnamed: 0', axis=1)
     # Compute pairwise DTW distances with parallelization
     num_curves = df.shape[1]
+    # generating pool of processes
     with Pool() as pool:
-        # Parallelize the computation of DTW distances
         iterators = []
+        # pairwise distance calculation using fastdtw
         for i in range(num_curves):
             for j in range(i + 1, num_curves):
                 iterators.append([i, j, df])
+        # storing both the distance and the indexes for creating distance matrix once finished
         results = pool.map(calculate_dtw_distance, iterators)
-    end = time.time()
+    end = time()
     print("Processing time: ", end-start, " sec")
     # Initialize the distance matrix
     dtw_distances = np.zeros((num_curves, num_curves))
