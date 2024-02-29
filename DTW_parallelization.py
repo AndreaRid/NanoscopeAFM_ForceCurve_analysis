@@ -5,7 +5,7 @@ import numpy as np
 import fastdtw
 from time import time, sleep
 from tqdm import tqdm
-from tqdm.contrib.concurrent import process_map
+
 
 def calculate_dtw_distance(indexes):
     '''Calculate the distance between the i-th and j-th columns (curves) of the dataframe by using Dynamic Time
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     for distance, i, j in results:
         dtw_distances[i, j] = distance
         dtw_distances[j, i] = distance  # Distance matrix is symmetric
-
+    # transforming the distance matrix in condensed form to be written by linkage function to generate dendrogram
     condensed_distances = squareform(dtw_distances)
     # Saving the condensed distance matrix as .csv for future use
     np.savetxt('condensed_distances_parallel.csv', condensed_distances, delimiter=',')
