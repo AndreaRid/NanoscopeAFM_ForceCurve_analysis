@@ -28,6 +28,7 @@ def plot_dendrogram(Z):
                         leaf_font_size=15) # and font size for the x axis labels
          plt.show()
 
+
 def plot_results(yaxis, xaxis, Z, cut_off_level):
     # assign each curve to a specific cluster (based on cut_off_level)
     result = pd.Series(fcluster(Z, cut_off_level, criterion='distance'))

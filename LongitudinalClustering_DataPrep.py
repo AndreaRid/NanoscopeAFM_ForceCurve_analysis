@@ -99,11 +99,11 @@ for i, curve in tqdm(enumerate(all_files), desc="Curve processing...", total=len
 df = pd.DataFrame(curves_array).T
 df_xaxis = pd.DataFrame(curves_array_xaxis).T
 # When preparing for DTW, comment the two following dropna() steps
-df.dropna(axis=1, inplace=True)
-df_xaxis.dropna(axis=1, inplace=True)
+# df.dropna(axis=1, inplace=True)
+# df_xaxis.dropna(axis=1, inplace=True)
 # saving in two separate dataframes the values of force and separation (x axis)
-df.to_csv("ROI_ForceCurvesSpline.csv", sep=',')
-df_xaxis.to_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
+df.to_csv("ROI_ForceCurvesSpline_DTW.csv", sep=',')
+df_xaxis.to_csv("ROI_ForceCurvesSpline_xaxis_DTW.csv", sep=',')
 # print(df)
 
 # plt.plot(roi_separation/np.max(roi_separation), roi_force, c="gray", alpha=0.5, linewidth=5)

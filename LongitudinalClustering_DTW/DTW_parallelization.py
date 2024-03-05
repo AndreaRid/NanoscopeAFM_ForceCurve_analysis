@@ -4,6 +4,8 @@ from scipy.spatial.distance import squareform
 import numpy as np
 import fastdtw
 from time import time, sleep
+import seaborn as sns
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
