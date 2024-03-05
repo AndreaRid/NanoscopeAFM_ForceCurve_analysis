@@ -28,9 +28,9 @@ def plot_dendrogram(Z):
                         leaf_font_size=15) # and font size for the x axis labels
          plt.show()
 
-def plot_results(yaxis, xaxis, D, cut_off_level):
+def plot_results(yaxis, xaxis, Z, cut_off_level):
     # assign each curve to a specific cluster (based on cut_off_level)
-    result = pd.Series(fcluster(D, cut_off_level, criterion='distance'))
+    result = pd.Series(fcluster(Z, cut_off_level, criterion='distance'))
     clusters = result.unique()
     fig, ax1 = plt.subplots(nrows=1, ncols=len(clusters))
     fig, ax2 = plt.subplots()
@@ -55,9 +55,15 @@ def plot_results(yaxis, xaxis, D, cut_off_level):
         l -= 1
     plt.show()
 
+# For euclidean distance longitudinal clustering
+# euclidean_df = pd.read_csv("ROI_ForceCurvesSpline.csv", sep=',')
+# euclidean_df = euclidean_df.drop('Unnamed: 0', axis=1).T
+# condensed_distances = euclidean_df
+
+# In the case of Dynamic Time Warping
+condensed_distances = np.loadtxt('condensed_distances_parallel.csv', delimiter=',')
 
 # # Perform hierarchical clustering
-condensed_distances = np.loadtxt('condensed_distances_parallel.csv', delimiter=',')
 Z = linkage(condensed_distances, method='ward', metric='euclidean')  # You can choose different linkage methods
 plot_dendrogram(Z)
 plt.show()

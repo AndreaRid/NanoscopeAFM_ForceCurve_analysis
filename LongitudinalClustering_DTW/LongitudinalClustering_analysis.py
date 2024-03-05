@@ -15,9 +15,7 @@ df = df.drop('Unnamed: 0', axis=1)
 # dataframe containing the separation (x-values) of the curves
 df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
 df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1)
-# run the clustering
-D = linkage(df.T, method='ward', metric='euclidean')
-# print("Linkage matrix: ", D)
+
 
 '''Dynamic Time Warping (DTW) --- better results ----'''
 # dataframe containing the force (y-values) of the curves
