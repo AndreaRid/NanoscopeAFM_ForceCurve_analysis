@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.signal import savgol_filter  # Savitzky Golay filter for smoothing data with too much noise
 from scipy.interpolate import UnivariateSpline
-from scipy.integrate import simps  # Calculating the area under the curve
 import time
+from tqdm import tqdm
 
 '''This script extracts all the indentation curves within the "Chromosome" folder, aligns the curves such that their 
 contact point (i.e., where the force starts to build up form 0) is at the same point and store all the curves in two 
@@ -47,10 +47,10 @@ curves_df = pd.DataFrame()
 # fig, ax = plt.subplots(1, 2)
 curves_array = [[] for _ in range(len(all_files))]
 curves_array_xaxis = [[] for _ in range(len(all_files))]
-for i, curve in enumerate(all_files):
+for i, curve in tqdm(enumerate(all_files), desc="Curve processing...", total=len(all_files)):
     # name of the curve
     curve_name = curve[-11:]
-    print("processing curve: ", curve_name)
+    # print("processing curve: ", curve_name)
     # Plotting each single curve independently
     # fig, ax = plt.subplots(1, 2)
     # plt.ion()
@@ -104,7 +104,7 @@ df_xaxis.dropna(axis=1, inplace=True)
 # saving in two separate dataframes the values of force and separation (x axis)
 df.to_csv("ROI_ForceCurvesSpline.csv", sep=',')
 df_xaxis.to_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
-print(df)
+# print(df)
 
 # plt.plot(roi_separation/np.max(roi_separation), roi_force, c="gray", alpha=0.5, linewidth=5)
 # plt.plot(roi_separation_spline, roi_force_spline, c='r', linewidth=1, linestyle='--')

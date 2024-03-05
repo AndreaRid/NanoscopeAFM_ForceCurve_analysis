@@ -20,6 +20,7 @@ def calculate_dtw_distance(indexes):
 # Performing DTW analysis exploiting parallelization
 if __name__ == '__main__':
     start = time()
+    print("Processing...")
     df = pd.read_csv("ROI_ForceCurvesSpline_DTW.csv", sep=',')
     df = df.drop('Unnamed: 0', axis=1)
     # Compute pairwise DTW distances with parallelization
@@ -34,7 +35,7 @@ if __name__ == '__main__':
         # storing both the distance and the indexes for creating distance matrix once finished
         results = pool.map(calculate_dtw_distance, iterators)
     end = time()
-    print("Processing time: ", end-start, " sec")
+    print("Finished, total processing time: ", end-start, " sec")
     # Initialize the distance matrix
     dtw_distances = np.zeros((num_curves, num_curves))
     # Update the distance matrix with the results
