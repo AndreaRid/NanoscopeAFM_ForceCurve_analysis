@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import fastdtw
+import fastdtw # for Dynamic Time Warping
 from scipy.spatial.distance import squareform
 import time
 
@@ -19,7 +19,7 @@ df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1)
 # D = linkage(df.T, method='ward', metric='euclidean')
 # print("Linkage matrix: ", D)
 
-'''Dynamic Time Warping (DTW)'''
+'''Dynamic Time Warping (DTW) --- better results ----'''
 # dataframe containing the force (y-values) of the curves
 df = pd.read_csv("ROI_ForceCurvesSpline_DTW.csv", sep=',')
 df = df.drop('Unnamed: 0', axis=1)
@@ -44,6 +44,3 @@ print('Processing time: ', end_time - start_time, " sec")
 condensed_distances = squareform(dtw_distances)
 # Saving the condensed distance matrix as .csv for future use
 np.savetxt('condensed_distances.csv', condensed_distances, delimiter=',')
-
-
-

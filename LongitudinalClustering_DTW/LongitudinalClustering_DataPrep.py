@@ -95,11 +95,13 @@ for i, curve in enumerate(all_files):
     curves_array[i] = roi_force_spline
     # keeping the original separation values (not normalized) for each curve
     curves_array_xaxis[i] = np.linspace(min(roi_separation), max(roi_separation), 505)
-# Storing the dataframes containing x and y axes of the force curves, for DTW comment the dropna() steps
+# Storing the dataframes containing x and y axes of the force curves
 df = pd.DataFrame(curves_array).T
 df_xaxis = pd.DataFrame(curves_array_xaxis).T
+# When preparing for DTW, comment the two following dropna() steps
 df.dropna(axis=1, inplace=True)
 df_xaxis.dropna(axis=1, inplace=True)
+# saving in two separate dataframes the values of force and separation (x axis)
 df.to_csv("ROI_ForceCurvesSpline.csv", sep=',')
 df_xaxis.to_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
 print(df)

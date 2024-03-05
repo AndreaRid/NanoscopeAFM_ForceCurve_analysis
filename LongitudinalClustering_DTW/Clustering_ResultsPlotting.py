@@ -11,7 +11,7 @@ df = df.drop('Unnamed: 0', axis=1)
 df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis_DTW.csv", sep=',')
 df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1)
 
-# dataframes for plotting results from normal clustering
+# dataframes for plotting results from normal euclidean distance analysis 
 # df = pd.read_csv("ROI_ForceCurvesSpline.csv", sep=',')
 # df = df.drop('Unnamed: 0', axis=1)
 # df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')

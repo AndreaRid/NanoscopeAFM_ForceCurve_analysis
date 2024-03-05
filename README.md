@@ -1,8 +1,8 @@
 # NanoscopeAFM_ForceCurve_analysis
 
 
-## _Very Brief Introduction_ 
-These scripts are made with the intent of processing force curves obtained with AFM (https://en.wikipedia.org/wiki/Atomic_force_microscopy). A force curve describes the process of indentation of a biological sample (chromosomes in this particular case) by a sharp tip (https://www.nature.com/articles/s42254-018-0001-7). The curves record the force related to the indentation of the tip and its retraction from the sample, from them, multiple biophysical parameters related to the mechanical and structural properties of the sample can be retrieved.
+## _Introduction_ 
+These scripts are made with the intent of processing force curves obtained with AFM (https://en.wikipedia.org/wiki/Atomic_force_microscopy). A force curve describes the process of indentation of a biological sample (chromosomes in this particular case) by a sharp tip (https://www.nature.com/articles/s42254-018-0001-7). The curves record the force related to the indentation of the tip and its retraction from the sample, from them, multiple biophysical parameters related to the mechanical and structural properties of the sample can be retrieved. The scripts can be applied to force-curves obtained using most of the commercially available AFM from Bruker. 
 
 ### Workflow
 
