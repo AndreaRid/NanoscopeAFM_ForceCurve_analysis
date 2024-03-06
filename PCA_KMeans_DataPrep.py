@@ -8,6 +8,8 @@ from scipy.optimize import curve_fit
 from scipy.signal import savgol_filter  # Savitzky Golay filter for smoothing data with too much noise
 from scipy.interpolate import UnivariateSpline
 from scipy.integrate import simps   # Calculating the area under the curve
+from tqdm import tqdm
+import os
 
 
 '''This script processes all the indentation curves within the "Chromosome" folder and calculates useful descriptors 
@@ -20,8 +22,9 @@ def fit_func_linear(x, a, b):
     return a * x + b
 
 
-
-folders = [f for f in glob.glob("Example_RawData/Chromosomes" + '**/*', recursive=True)]
+dir_path = os.path.dirname(os.path.abspath(__file__))
+folders = [f for f in glob.glob(dir_path + "/Example_RawData/Chromosomes" + '**/*', recursive=True)]
+print(folders)
 # folder = "Chromosome_PS161143"
 # storing the directories of all the files
 all_files = []
@@ -39,10 +42,10 @@ curves_df = pd.DataFrame()
 
 # For plotting all the curves together, activate the first plt.subplots()
 # fig, ax = plt.subplots(1, 2)
-for curve in all_files:
+for curve in tqdm(all_files, desc="Processing curves...", total=len(all_files)):
     # name of the curve
     curve_name = curve[-11:]
-    print("processing curve: ", curve_name)
+    # print("processing curve: ", curve_name)
     # Plotting each single curve independently
     # fig, ax = plt.subplots(1, 2)
     # plt.ion()
@@ -120,5 +123,5 @@ for curve in all_files:
     # plt.show()
 
 # De-comment the next line to save the features of all the processed curves into a .csv file for further analyses
-# df.to_csv("PCA_dataset.csv")
+df.to_csv("CurveFeatures_dataset.csv")
 # plt.savefig("Fig.1.png", dpi=200)

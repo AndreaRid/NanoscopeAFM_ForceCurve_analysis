@@ -21,7 +21,7 @@ def fit_func_linear(x, a, b):
 # Initialize PCA
 pca = PCA(n_components=2)
 # Fit PCA on the data
-df = pd.read_csv("../PCA_dataset.csv")
+df = pd.read_csv("CurveFeatures_dataset.csv")
 data = df.drop("curve_id", axis=1)
 pca.fit(data)
 # Transform the data into principal components

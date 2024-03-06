@@ -21,7 +21,7 @@ def fit_func_linear(x, a, b):
 # Initialize PCA
 model = KMeans(n_clusters=3)
 # Fit KMeans on the data
-df = pd.read_csv("../PCA_dataset.csv")
+df = pd.read_csv("CurveFeatures_dataset.csv")
 data = df.drop("curve_id", axis=1)
 model.fit(data)
 # Get cluster assignments for each data point
@@ -39,7 +39,7 @@ def fit_func_linear(x, a, b):
 
 # Plotting
 fig = plt.figure(figsize=(20, 10))
-ax = fig.subplots(1, 2)
+ax = fig.subplots()
 # First we need to process and plot all the raw curves data
 for i, curve in enumerate(df["curve_id"].values):
     curve_data = nanoscope_converter(curve)
@@ -66,9 +66,9 @@ for i, curve in enumerate(df["curve_id"].values):
     fit_force = force[cp_index: end_pt[0]]
     fit_separation = fit_separation * -1
     color = ["gray", "blue", "darkred"]
-    ax[0].plot(fit_separation, fit_force, alpha=0.3, c=color[labels[i]])
-    ax[0].set_xlabel("Indentation (nm)")
-    ax[0].set_ylabel("Force (pN)")
+    ax.plot(fit_separation, fit_force, alpha=0.3, c=color[labels[i]])
+    ax.set_xlabel("Indentation (nm)")
+    ax.set_ylabel("Force (pN)")
 
 plt.tight_layout()
 # saving the plot
