@@ -11,12 +11,6 @@ df = df.drop('Unnamed: 0', axis=1)
 df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis_DTW.csv", sep=',')
 df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1)
 
-# dataframes for plotting results from normal euclidean distance analysis 
-# df = pd.read_csv("ROI_ForceCurvesSpline.csv", sep=',')
-# df = df.drop('Unnamed: 0', axis=1)
-# df_xaxis = pd.read_csv("ROI_ForceCurvesSpline_xaxis.csv", sep=',')
-# df_xaxis = df_xaxis.drop('Unnamed: 0', axis=1)
-
 
 def plot_dendrogram(Z):
     with plt.style.context('fivethirtyeight' ):
@@ -56,12 +50,8 @@ def plot_results(yaxis, xaxis, Z, cut_off_level):
         l -= 1
     plt.show()
 
-# For euclidean distance longitudinal clustering
-# euclidean_df = pd.read_csv("ROI_ForceCurvesSpline.csv", sep=',')
-# euclidean_df = euclidean_df.drop('Unnamed: 0', axis=1).T
-# condensed_distances = euclidean_df
 
-# In the case of Dynamic Time Warping
+# importing the distance matrix
 condensed_distances = np.loadtxt('condensed_distances_parallel.csv', delimiter=',')
 
 # # Perform hierarchical clustering
@@ -69,7 +59,6 @@ Z = linkage(condensed_distances, method='ward', metric='euclidean')  # You can c
 plot_dendrogram(Z)
 plt.show()
 
-#---- evaluate the dendrogram
-# cut_off_level = .5e6# level where to cut off the dendrogram
+#---- evaluate the dendrogram (input the value of "distance" where you want to cut the dendrogram)
 cut_off_level = input("insert cut off level: ")
 plot_results(df, df_xaxis, Z, cut_off_level)

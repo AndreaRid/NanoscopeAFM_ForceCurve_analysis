@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, Normalizer
 
 
-'''This script imports the results from the Chrm_IndentationAnalysis.py and runs a Principal Component Analysis (PCA) 
+'''This script imports the results from the PCA_KMeans_DataPrep.py and runs a Principal Component Analysis (PCA) 
 to understand which are the main properties that can be used to cluster different types of curves.'''
 
 

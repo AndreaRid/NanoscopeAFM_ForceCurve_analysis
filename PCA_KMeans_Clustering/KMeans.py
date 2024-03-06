@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler, Normalizer
 
 
-'''This script imports the results from the Chrm_IndentationAnalysis.py and runs a KMeans clustering algorithm 
+'''This script imports the results from the PCA_KMeans_DataPrep.py and runs a KMeans clustering algorithm 
 to understand if it's possible to cluster the indentation curves in distinct categories.'''
 
 

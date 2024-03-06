@@ -8,6 +8,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+'''Calculates the distance matrix using Dynamic Time Warping using a parallelized design to achieve better 
+performance.'''
 
 def calculate_dtw_distance(indexes):
     '''Calculate the distance between the i-th and j-th columns (curves) of the dataframe by using Dynamic Time

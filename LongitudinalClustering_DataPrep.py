@@ -20,9 +20,6 @@ analyses on the curves.'''
 def fit_func_linear(x, a, b):
     return a * x + b
 
-# start = time.time()
-# end = time.time()
-# print(end-start)
 
 # Get a list of all file paths recursively
 folders = np.array(glob.glob("Example_RawData/Chromosomes/*", recursive=True))
@@ -37,7 +34,6 @@ curves_sel = np.char.find(all_files, '.000') >= 0
 all_files = all_files[curves_sel]
 # image of the chromosome is the only .tif file in the folder
 img_path = [item for item in all_files if '.tif' in item]
-
 
 
 df = pd.DataFrame()
@@ -98,9 +94,7 @@ for i, curve in tqdm(enumerate(all_files), desc="Curve processing...", total=len
 # Storing the dataframes containing x and y axes of the force curves
 df = pd.DataFrame(curves_array).T
 df_xaxis = pd.DataFrame(curves_array_xaxis).T
-# When preparing for DTW, comment the two following dropna() steps
-# df.dropna(axis=1, inplace=True)
-# df_xaxis.dropna(axis=1, inplace=True)
+
 # saving in two separate dataframes the values of force and separation (x axis)
 df.to_csv("ROI_ForceCurvesSpline_DTW.csv", sep=',')
 df_xaxis.to_csv("ROI_ForceCurvesSpline_xaxis_DTW.csv", sep=',')
