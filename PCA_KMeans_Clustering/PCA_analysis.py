@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.optimize import curve_fit
 from sklearn.decomposition import PCA
+import os
 from sklearn.preprocessing import StandardScaler, Normalizer
 
 
@@ -21,7 +22,9 @@ def fit_func_linear(x, a, b):
 # Initialize PCA
 pca = PCA(n_components=2)
 # Fit PCA on the data
-df = pd.read_csv("CurveFeatures_dataset.csv")
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+filepath = os.path.dirname(curr_dir) + "/CurveFeatures_dataset.csv"
+df = pd.read_csv(filepath)
 data = df.drop("curve_id", axis=1)
 pca.fit(data)
 # Transform the data into principal components
