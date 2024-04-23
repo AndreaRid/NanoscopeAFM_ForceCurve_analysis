@@ -75,7 +75,7 @@ plt.title('How many features to explain 90% of variance?')
 ax.plot(range(1, data.shape[1]+1), expl_var_ratio.cumsum(), marker='o')
 ax.axhline(y=0.9, color='g', linestyle='--')
 ax.set_ylim(0.3, 1.2)
-plt.savefig("KMean_after_PCA_VarianceRatio.png", dpi=300)
+plt.savefig("KMean_after_PCA_VarianceRatio.png", dpi=600)
 plt.show()
 
 # Using 4 components we can explain > 90% variance
@@ -99,7 +99,7 @@ plt.title('KMeans of the PCA')
 plt.plot(range(1, scaled_df.shape[1]+1), inertia, marker='o')
 plt.xlabel('Clusters')
 plt.ylabel('KMeans Inertia')
-plt.savefig("KMean_after_PCA_Elbow.png", dpi=300)
+plt.savefig("KMean_after_PCA_Elbow.png", dpi=600)
 plt.show()
 
 # After deciding the optimal number of clusters, perform KMeans
@@ -159,5 +159,5 @@ for i, curve in enumerate(df["curve_id"].values):
     ax[1].set_ylabel(df_pc.columns[3])
 plt.tight_layout()
 # saving the plot
-plt.savefig("KMean_after_PCA_Clusters&Curves.png", dpi=300)
+plt.savefig("KMean_after_PCA_Clusters&Curves.png", dpi=600)
 plt.show()
