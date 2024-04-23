@@ -80,7 +80,7 @@ plt.show()
 
 # Using 4 components we can explain > 90% variance
 pca = PCA(n_components=4, random_state=21)
-pca.fit(scaled_df)
+pca_df = pd.DataFrame(pca.fit_transform(scaled_df))
 # to figure out the features that are important
 sd = np.abs(pca.components_[0]).argsort()[::-1]
 major_components = pd.DataFrame(np.abs(pca.components_[0]),
@@ -90,13 +90,14 @@ print("Major components: ")
 print(major_components.sort_values(by='Value', ascending=False))
 # Elbow method for deciding the optimal number of clusters in KMeans
 inertia = []
-for i in range(1, scaled_df.shape[1]+1):
+
+for i in range(1, pca_df.shape[1]+1):
     # performing KMeans for different cluster numbers and calculating the inertia
     KM = KMeans(n_clusters=i, init='k-means++', n_init='auto', random_state=21)
-    KM.fit(scaled_df)
+    KM.fit(pca_df)
     inertia.append(KM.inertia_)
 plt.title('KMeans of the PCA')
-plt.plot(range(1, scaled_df.shape[1]+1), inertia, marker='o')
+plt.plot(range(1, pca_df.shape[1]+1), inertia, marker='o')
 plt.xlabel('Clusters')
 plt.ylabel('KMeans Inertia')
 plt.savefig("KMean_after_PCA_Elbow.png", dpi=600)
@@ -104,16 +105,17 @@ plt.show()
 
 # After deciding the optimal number of clusters, perform KMeans
 Kmeans_pca = KMeans(n_clusters=3, init='k-means++', n_init='auto', random_state=21)
-Kmeans_pca.fit(scaled_df)
+Kmeans_pca.fit(pca_df)
 # these are the cluster labels
 cluster_labels = Kmeans_pca.labels_
 # creating a dataframe from the components used by the KMeans
-df_pc = pd.DataFrame(scaled_df)
+df_pc = pd.DataFrame(pca_df)
 df_pc['Label'] = cluster_labels
+print(df_pc)
 # plotting the clusters
-sns.scatterplot(data=df_pc, x='max_force', y="cp_x", hue='Label', palette="viridis")
+sns.scatterplot(data=df_pc, x=df_pc.iloc[:,0], y=df_pc.iloc[:,1], hue='Label', palette="viridis")
 plt.title('Scatter plot of the clusters')
-plt.scatter(Kmeans_pca.cluster_centers_[:, 2], Kmeans_pca.cluster_centers_[:, 3], s=100, c='red', label='Centroids')
+plt.scatter(Kmeans_pca.cluster_centers_[:, 0], Kmeans_pca.cluster_centers_[:, 1], s=100, c='red', label='Centroids')
 plt.savefig("KMean_after_PCA_Clusters&Centroids.png", dpi=300)
 plt.show()
 
@@ -154,9 +156,9 @@ for i, curve in enumerate(df["curve_id"].values):
     ax[0].plot(fit_separation, fit_force, alpha=0.3, c=c[cluster_n])
     ax[0].set_xlabel("Indentation (nm)")
     ax[0].set_ylabel("Force (pN)")
-    ax[1].scatter(df_pc.iloc[i, 2], df_pc.iloc[i, 3], c=c[cluster_n])
-    ax[1].set_xlabel(df_pc.columns[2])
-    ax[1].set_ylabel(df_pc.columns[3])
+    ax[1].scatter(df_pc.iloc[i, 0], df_pc.iloc[i, 1], c=c[cluster_n])
+    ax[1].set_xlabel(df_pc.columns[0])
+    ax[1].set_ylabel(df_pc.columns[1])
 plt.tight_layout()
 # saving the plot
 plt.savefig("KMean_after_PCA_Clusters&Curves.png", dpi=600)
