@@ -91,6 +91,7 @@ print(major_components.sort_values(by='Value', ascending=False))
 # Elbow method for deciding the optimal number of clusters in KMeans
 inertia = []
 
+pca_df = scaled_df
 for i in range(1, pca_df.shape[1]+1):
     # performing KMeans for different cluster numbers and calculating the inertia
     KM = KMeans(n_clusters=i, init='k-means++', n_init='auto', random_state=21)
@@ -113,9 +114,9 @@ df_pc = pd.DataFrame(pca_df)
 df_pc['Label'] = cluster_labels
 print(df_pc)
 # plotting the clusters
-sns.scatterplot(data=df_pc, x=df_pc.iloc[:,0], y=df_pc.iloc[:,1], hue='Label', palette="viridis")
+sns.scatterplot(data=df_pc, x=df_pc.iloc[:,2], y=df_pc.iloc[:,3], hue='Label', palette="viridis")
 plt.title('Scatter plot of the clusters')
-plt.scatter(Kmeans_pca.cluster_centers_[:, 0], Kmeans_pca.cluster_centers_[:, 1], s=100, c='red', label='Centroids')
+plt.scatter(Kmeans_pca.cluster_centers_[:, 2], Kmeans_pca.cluster_centers_[:, 3], s=100, c='red', label='Centroids')
 plt.savefig("KMean_after_PCA_Clusters&Centroids.png", dpi=300)
 plt.show()
 
@@ -156,7 +157,7 @@ for i, curve in enumerate(df["curve_id"].values):
     ax[0].plot(fit_separation, fit_force, alpha=0.3, c=c[cluster_n])
     ax[0].set_xlabel("Indentation (nm)")
     ax[0].set_ylabel("Force (pN)")
-    ax[1].scatter(df_pc.iloc[i, 0], df_pc.iloc[i, 1], c=c[cluster_n])
+    ax[1].scatter(df_pc.iloc[i, 2], df_pc.iloc[i, 3], c=c[cluster_n])
     ax[1].set_xlabel(df_pc.columns[0])
     ax[1].set_ylabel(df_pc.columns[1])
 plt.tight_layout()
